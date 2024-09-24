@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import diacritics.owo.config.Config.Model;
-import diacritics.owo.config.Config.Model.GenderModel;
-import diacritics.owo.config.Config.Model.GeneticsModel;
-import diacritics.owo.config.Config.Model.HairModel;
-import diacritics.owo.config.Config.Model.TraitModel;
+import diacritics.owo.config.Config.PresetModel;
+import diacritics.owo.config.Config.PresetModel.GenderModel;
+import diacritics.owo.config.Config.PresetModel.GeneticsModel;
+import diacritics.owo.config.Config.PresetModel.HairModel;
+import diacritics.owo.config.Config.PresetModel.TraitModel;
 import diacritics.owo.mixin.GeneticsAccessor;
 import fabric.net.mca.entity.VillagerLike;
 import fabric.net.mca.entity.ai.Genetics;
@@ -21,6 +21,8 @@ import fabric.net.mca.entity.ai.relationship.Gender;
 
 public class VillagerData {
   public static final Set<GeneType> GENOMES = GeneticsAccessor.genomes();
+
+  // we don't need the name
 
   private String clothing;
   private String hair;
@@ -89,8 +91,8 @@ public class VillagerData {
     this.gender = entity.getGenetics().getGender();
   }
 
-  public Model toModel() {
-    return new Model(this.clothing, new HairModel(this.hair, this.hairColor),
+  public PresetModel toPreset() {
+    return new PresetModel(this.clothing, new HairModel(this.hair, this.hairColor),
         new GeneticsModel(this.genetics.get(Genetics.SIZE), this.genetics.get(Genetics.WIDTH),
             this.genetics.get(Genetics.BREAST), this.genetics.get(Genetics.MELANIN),
             this.genetics.get(Genetics.HEMOGLOBIN), this.genetics.get(Genetics.EUMELANIN),
@@ -123,7 +125,7 @@ public class VillagerData {
         });
   }
 
-  public static VillagerData fromModel(Model model) {
+  public static VillagerData fromPreset(PresetModel model) {
     return new VillagerData(model.clothing, model.hair.hair, model.hair.color,
         Map.ofEntries(Map.entry(Genetics.SIZE, model.genetics.size),
             Map.entry(Genetics.WIDTH, model.genetics.width),

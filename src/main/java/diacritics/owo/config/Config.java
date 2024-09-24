@@ -55,9 +55,20 @@ public class Config {
   }
 
   public static class Model {
-    public static final Model DEFAULT = new Model("", new HairModel("", new float[] {0, 0, 0}),
-        new GeneticsModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), new TraitModel[0],
-        GenderModel.MASCULINE);
+    public static final Model DEFAULT = new Model(PresetModel.DEFAULT);
+
+    public PresetModel preset;
+
+    public Model(PresetModel preset) {
+      this.preset = preset;
+    }
+  }
+
+  public static class PresetModel {
+    public static final PresetModel DEFAULT =
+        new PresetModel("", new HairModel("", new float[] {0, 0, 0}),
+            new GeneticsModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), new TraitModel[0],
+            GenderModel.MASCULINE);
 
     public String clothing;
     public HairModel hair;
@@ -65,7 +76,7 @@ public class Config {
     public TraitModel[] traits;
     public GenderModel gender;
 
-    public Model(String clothes, HairModel hair, GeneticsModel genetics, TraitModel[] traits,
+    public PresetModel(String clothes, HairModel hair, GeneticsModel genetics, TraitModel[] traits,
         GenderModel gender) {
       this.clothing = clothes;
       this.hair = hair;

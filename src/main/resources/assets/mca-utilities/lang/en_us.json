@@ -1,4 +1,5 @@
 {
-  "gui.mca-utilities.config.title": "MCA Utilities",
-  "gui.mca-utilities.config.world-required": "You must be in a world to use this"
+  "gui.mca-utilities.button.use-preset": "Use preset",
+  "gui.mca-utilities.button.edit-preset": "Edit preset",
+  "gui.mca-utilities.world-required": "You must be in a world to use this"
 }
