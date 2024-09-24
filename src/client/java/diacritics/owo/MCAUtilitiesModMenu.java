@@ -3,9 +3,7 @@ package diacritics.owo;
 import org.jetbrains.annotations.NotNull;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import diacritics.owo.util.CosmeticValues;
-import diacritics.owo.util.GeneticsValues;
-import diacritics.owo.util.TraitsValues;
+import diacritics.owo.util.VillagerData;
 import fabric.net.mca.client.gui.VillagerEditorScreen;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.component.Components;
@@ -64,9 +62,8 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                 }
               });
         })).child(Components.button(Text.literal("Edit presets"), button -> {
-          GeneticsValues genetics = new GeneticsValues();
-          CosmeticValues cosmetic = new CosmeticValues();
-          TraitsValues traits = new TraitsValues();
+          // TODO: name
+          VillagerData data = new VillagerData();
 
           Screen screen =
               new VillagerEditorScreen(this.client.player.getUuid(), this.client.player.getUuid()) {
@@ -76,17 +73,16 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                   super.setPage(page);
 
                   if (loaded) {
-                    genetics.update(this.villager.getGenetics());
-                    cosmetic.update(this.villager);
-                    traits.update(this.villager.getTraits());
+                    data.update(this.villager);
+                    VillagerData.fromModel(MCAUtilities.CONFIG.read()).apply(this.villager);;
                   }
                 }
 
                 @Override
                 public void close() {
-                  genetics.apply(this.villager.getGenetics());
-                  cosmetic.apply(this.villager);
-                  traits.apply(this.villager.getTraits());
+                  MCAUtilities.CONFIG.write(new VillagerData(this.villager).toModel());
+
+                  data.apply(this.villager);
                   this.syncVillagerData();
 
                   this.client.setScreen(_this);
