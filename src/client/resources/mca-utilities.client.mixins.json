@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "diacritics.owo.mixin.client",
+  "compatibilityLevel": "JAVA_17",
+  "client": ["ExampleClientMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
