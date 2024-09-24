@@ -36,7 +36,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"mca-utilities" {
+		"mca-expanded" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}

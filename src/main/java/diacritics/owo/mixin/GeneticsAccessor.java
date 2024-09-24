@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import fabric.net.mca.entity.ai.Genetics;
 import fabric.net.mca.entity.ai.Genetics.GeneType;
 
-@Mixin(Genetics.class)
+@Mixin(value = Genetics.class, remap = false)
 public interface GeneticsAccessor {
   @Accessor(value = "GENOMES")
   public static Set<GeneType> genomes() {

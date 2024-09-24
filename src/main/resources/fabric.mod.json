@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "mca-utilities",
+  "id": "mca-expanded",
   "version": "${version}",
-  "name": "MCA Utilities",
+  "name": "MCA Expanded",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": ["diacritics-owo"],
   "contact": {
@@ -10,17 +10,17 @@
     "sources": "https://github.com/FabricMC/fabric-example-mod"
   },
   "license": "MIT",
-  "icon": "assets/mca-utilities/icon.png",
+  "icon": "assets/mca-expanded/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["diacritics.owo.MCAUtilities"],
-    "client": ["diacritics.owo.MCAUtilitiesClient"],
-    "modmenu": ["diacritics.owo.MCAUtilitiesModMenu"]
+    "main": ["diacritics.owo.McaExpanded"],
+    "client": ["diacritics.owo.McaExpandedClient"],
+    "modmenu": ["diacritics.owo.McaExpandedModMenu"]
   },
   "mixins": [
-    "mca-utilities.mixins.json",
+    "mca-expanded.mixins.json",
     {
-      "config": "mca-utilities.client.mixins.json",
+      "config": "mca-expanded.client.mixins.json",
       "environment": "client"
     }
   ],

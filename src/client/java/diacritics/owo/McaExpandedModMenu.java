@@ -20,21 +20,21 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-public class MCAUtilitiesModMenu implements ModMenuApi {
+public class McaExpandedModMenu implements ModMenuApi {
   @Override
   public ConfigScreenFactory<?> getModConfigScreenFactory() {
-    return new ConfigScreenFactory<MCAUtilitiesConfigScreen>() {
+    return new ConfigScreenFactory<McaExpandedConfigScreen>() {
       @Override
-      public MCAUtilitiesConfigScreen create(Screen parent) {
-        return new MCAUtilitiesConfigScreen(parent);
+      public McaExpandedConfigScreen create(Screen parent) {
+        return new McaExpandedConfigScreen(parent);
       }
     };
   }
 
-  public static class MCAUtilitiesConfigScreen extends BaseOwoScreen<FlowLayout> {
+  public static class McaExpandedConfigScreen extends BaseOwoScreen<FlowLayout> {
     public final Screen parent;
 
-    public MCAUtilitiesConfigScreen(Screen parent) {
+    public McaExpandedConfigScreen(Screen parent) {
       this.parent = parent;
     }
 
@@ -53,21 +53,21 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
 
       FlowLayout parent = Containers.verticalFlow(Sizing.content(), Sizing.content());
 
-      parent.child(Components.button(Text.translatable("gui.mca-utilities.config.destiny",
-          MCAUtilities.CONFIG.read().destiny ? "Enabled" : "Disabled"), (button) -> {
-            Model config = MCAUtilities.CONFIG.read();
+      parent.child(Components.button(Text.translatable("gui.mca-expanded.config.destiny",
+          McaExpanded.CONFIG.read().destiny ? "Enabled" : "Disabled"), (button) -> {
+            Model config = McaExpanded.CONFIG.read();
             config.destiny = !config.destiny;
-            MCAUtilities.CONFIG.write(config);
+            McaExpanded.CONFIG.write(config);
 
-            button.setMessage(Text.translatable("gui.mca-utilities.config.destiny",
-                MCAUtilities.CONFIG.read().destiny ? "Enabled" : "Disabled"));
+            button.setMessage(Text.translatable("gui.mca-expanded.config.destiny",
+                McaExpanded.CONFIG.read().destiny ? "Enabled" : "Disabled"));
           })).child(Components.label(Text.literal(" ")));
 
       if (!inWorld) {
         parent.child(Components.label(
-            Text.translatable("gui.mca-utilities.world-required").formatted(Formatting.BLACK)));
+            Text.translatable("gui.mca-expanded.world-required").formatted(Formatting.BLACK)));
       } else {
-        parent.child(Components.button(Text.translatable("gui.mca-utilities.config.edit-preset"),
+        parent.child(Components.button(Text.translatable("gui.mca-expanded.config.edit-preset"),
             (button) -> {
               VillagerData data = new VillagerData();
 
@@ -75,20 +75,20 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                   this.client.player.getUuid()) {
                 @Override
                 protected void setPage(String page) {
-                  boolean loaded = this.page.equals("loading");
+                  boolean loaded = this.page != null && this.page.equals("loading");
                   super.setPage(page);
 
                   if (loaded) {
                     data.update(this.villager);
-                    VillagerData.fromPreset(MCAUtilities.CONFIG.read().preset).apply(this.villager);
+                    VillagerData.fromPreset(McaExpanded.CONFIG.read().preset).apply(this.villager);
                   }
                 }
 
                 @Override
                 public void close() {
-                  Model config = MCAUtilities.CONFIG.read();
+                  Model config = McaExpanded.CONFIG.read();
                   config.preset = new VillagerData(this.villager).toPreset();
-                  MCAUtilities.CONFIG.write(config);
+                  McaExpanded.CONFIG.write(config);
 
                   data.apply(this.villager);
                   this.syncVillagerData();

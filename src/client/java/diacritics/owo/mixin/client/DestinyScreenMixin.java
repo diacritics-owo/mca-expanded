@@ -3,7 +3,7 @@ package diacritics.owo.mixin.client;
 import org.spongepowered.asm.mixin.Mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import diacritics.owo.MCAUtilities;
+import diacritics.owo.McaExpanded;
 import fabric.net.mca.MCAClient;
 import fabric.net.mca.client.gui.DestinyScreen;
 import fabric.net.mca.cobalt.network.NetworkHandler;
@@ -19,7 +19,8 @@ public abstract class DestinyScreenMixin extends Screen {
 
   @WrapMethod(method = "setPage")
   private void setPage(String page, Operation<Void> original) {
-    if (!MCAUtilities.CONFIG.read().destiny && (page.equals("destiny") || page.equals("story"))) {
+    if (!McaExpanded.CONFIG.read().destiny && page != null
+        && (page.equals("destiny") || page.equals("story"))) {
       NetworkHandler.sendToServer(new DestinyMessage(true));
       MCAClient.getDestinyManager().allowClosing();
       super.close();

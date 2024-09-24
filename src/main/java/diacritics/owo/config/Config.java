@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import com.google.gson.Gson;
-import diacritics.owo.MCAUtilities;
+import diacritics.owo.McaExpanded;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class Config {
@@ -29,7 +29,7 @@ public class Config {
 
   public Model read() {
     if (!this.exists()) {
-      MCAUtilities.LOGGER.info(
+      McaExpanded.LOGGER.info(
           "could not find a configuration file, so the default value will be written to {}",
           this.path());
       this.write(Model.DEFAULT);
@@ -38,7 +38,7 @@ public class Config {
     try {
       return gson.fromJson(Files.readString(this.path()), Model.class);
     } catch (IOException exception) {
-      MCAUtilities.LOGGER.error(
+      McaExpanded.LOGGER.error(
           "encountered an error while reading the configuration, so the default value will be used",
           exception);
       return Model.DEFAULT;
@@ -50,7 +50,7 @@ public class Config {
       this.path().getParent().toFile().mkdirs();
       Files.writeString(this.path(), this.gson.toJson(value));
     } catch (IOException error) {
-      MCAUtilities.LOGGER.error("failed to write configuration to {}!", this.path(), error);
+      McaExpanded.LOGGER.error("failed to write configuration to {}!", this.path(), error);
     }
   }
 
