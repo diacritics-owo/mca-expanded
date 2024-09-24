@@ -55,11 +55,13 @@ public class Config {
   }
 
   public static class Model {
-    public static final Model DEFAULT = new Model(PresetModel.DEFAULT);
+    public static final Model DEFAULT = new Model(true, PresetModel.DEFAULT);
 
+    public boolean destiny;
     public PresetModel preset;
 
-    public Model(PresetModel preset) {
+    public Model(boolean destiny, PresetModel preset) {
+      this.destiny = destiny;
       this.preset = preset;
     }
   }

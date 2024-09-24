@@ -1,5 +1,6 @@
 {
   "gui.mca-utilities.button.use-preset": "Use Preset",
-  "gui.mca-utilities.button.edit-preset": "Edit Preset",
-  "gui.mca-utilities.world-required": "You must be in a world to use this"
+  "gui.mca-utilities.config.edit-preset": "Edit Preset",
+  "gui.mca-utilities.world-required": "You must be in a world to edit the preset",
+  "gui.mca-utilities.config.destiny": "Destiny Screen: %s"
 }

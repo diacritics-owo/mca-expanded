@@ -53,11 +53,21 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
 
       FlowLayout parent = Containers.verticalFlow(Sizing.content(), Sizing.content());
 
+      parent.child(Components.button(Text.translatable("gui.mca-utilities.config.destiny",
+          MCAUtilities.CONFIG.read().destiny ? "Enabled" : "Disabled"), (button) -> {
+            Model config = MCAUtilities.CONFIG.read();
+            config.destiny = !config.destiny;
+            MCAUtilities.CONFIG.write(config);
+
+            button.setMessage(Text.translatable("gui.mca-utilities.config.destiny",
+                MCAUtilities.CONFIG.read().destiny ? "Enabled" : "Disabled"));
+          })).child(Components.label(Text.literal(" ")));
+
       if (!inWorld) {
         parent.child(Components.label(
-            Text.translatable("gui.mca-utilities.world-required").formatted(Formatting.DARK_RED)));
+            Text.translatable("gui.mca-utilities.world-required").formatted(Formatting.BLACK)));
       } else {
-        parent.child(Components.button(Text.translatable("gui.mca-utilities.button.edit-preset"),
+        parent.child(Components.button(Text.translatable("gui.mca-utilities.config.edit-preset"),
             (button) -> {
               VillagerData data = new VillagerData();
 
@@ -65,7 +75,7 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                   this.client.player.getUuid()) {
                 @Override
                 protected void setPage(String page) {
-                  boolean loaded = this.page == "loading";
+                  boolean loaded = this.page.equals("loading");
                   super.setPage(page);
 
                   if (loaded) {
