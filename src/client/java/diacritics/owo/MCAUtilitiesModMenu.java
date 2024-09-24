@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import diacritics.owo.config.Config.Model;
+import diacritics.owo.gui.CustomVillagerEditorScreen;
 import diacritics.owo.util.VillagerData;
-import fabric.net.mca.client.gui.VillagerEditorScreen;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
@@ -43,11 +43,8 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
       return OwoUIAdapter.create(this, Containers::verticalFlow);
     }
 
-    // TODO: using a library closes the screen
     @Override
     protected void build(FlowLayout rootComponent) {
-      Screen _this = this;
-
       rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
           .horizontalAlignment(HorizontalAlignment.CENTER)
           .verticalAlignment(VerticalAlignment.CENTER);
@@ -61,7 +58,7 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
         // TODO: allows bypassing permissions (see command::editor in mca)
         parent.child(Components.button(Text.translatable("gui.mca-utilities.button.use-preset"),
             (button) -> {
-              Screen screen = new VillagerEditorScreen(this.client.player.getUuid(),
+              Screen screen = new CustomVillagerEditorScreen(this, this.client.player.getUuid(),
                   this.client.player.getUuid()) {
                 @Override
                 protected void setPage(String page) {
@@ -72,11 +69,6 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                     VillagerData.fromPreset(MCAUtilities.CONFIG.read().preset).apply(this.villager);
                   }
                 }
-
-                @Override
-                public void close() {
-                  this.client.setScreen(_this);
-                }
               };
 
               this.client.setScreen(screen);
@@ -84,7 +76,7 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                 .button(Text.translatable("gui.mca-utilities.button.edit-preset"), (button) -> {
                   VillagerData data = new VillagerData();
 
-                  Screen screen = new VillagerEditorScreen(this.client.player.getUuid(),
+                  Screen screen = new CustomVillagerEditorScreen(this, this.client.player.getUuid(),
                       this.client.player.getUuid()) {
                     @Override
                     protected void setPage(String page) {
@@ -107,7 +99,7 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                       data.apply(this.villager);
                       this.syncVillagerData();
 
-                      this.client.setScreen(_this);
+                      super.close();
                     }
                   };
 
