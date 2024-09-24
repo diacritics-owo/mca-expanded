@@ -14,8 +14,8 @@ repositories {
 	exclusiveContent {
 		forRepository {
 			maven {
-				name = "Modrinth"
-				url = "https://api.modrinth.com/maven"
+				name "Modrinth"
+				url "https://api.modrinth.com/maven"
 			}
 		}
 		filter {
@@ -23,9 +23,13 @@ repositories {
 		}
 	}
 	maven {
-    name = "Terraformers"
-    url = "https://maven.terraformersmc.com/"
+    name "Terraformers"
+    url "https://maven.terraformersmc.com/"
   }
+	maven {
+		name "Wisp Forest"
+		url 'https://maven.wispforest.io/releases/'
+	}
 }
 
 loom {
@@ -48,6 +52,11 @@ dependencies {
 
 	modImplementation "maven.modrinth:minecraft-comes-alive-reborn:${project.mca_version}"
 	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+	modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+  include "io.wispforest:owo-sentinel:${project.owo_version}"
+
+	modImplementation "maven.modrinth:architectury-api:${project.architectury_version}"
 }
 
 processResources {
