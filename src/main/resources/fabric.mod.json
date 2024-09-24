@@ -14,7 +14,8 @@
   "environment": "*",
   "entrypoints": {
     "main": ["diacritics.owo.MCAUtilities"],
-    "client": ["diacritics.owo.MCAUtilitiesClient"]
+    "client": ["diacritics.owo.MCAUtilitiesClient"],
+    "modmenu": ["diacritics.owo.MCAUtilitiesModMenu"]
   },
   "mixins": [
     "mca-utilities.mixins.json",
@@ -27,6 +28,10 @@
     "fabricloader": ">=0.16.5",
     "minecraft": "~1.20.1",
     "java": ">=17",
-    "fabric-api": "*"
+    "fabric-api": "*",
+    "mca": "~7.5.19+1.20.1"
+  },
+  "recommends": {
+    "modmenu": "~7.2.2"
   }
 }
