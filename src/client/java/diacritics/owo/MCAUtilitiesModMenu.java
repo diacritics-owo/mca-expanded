@@ -45,19 +45,22 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
 
     @Override
     protected void build(FlowLayout rootComponent) {
-      rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
+      boolean inWorld = this.client.world != null;
+
+      rootComponent.surface(inWorld ? Surface.VANILLA_TRANSLUCENT : Surface.OPTIONS_BACKGROUND)
           .horizontalAlignment(HorizontalAlignment.CENTER)
           .verticalAlignment(VerticalAlignment.CENTER);
 
       FlowLayout parent = Containers.verticalFlow(Sizing.content(), Sizing.content());
 
-      if (this.client.world == null) {
+      if (!inWorld) {
         parent.child(Components.label(
-            Text.translatable("gui.mca-utilities.world-required").formatted(Formatting.RED)));
+            Text.translatable("gui.mca-utilities.world-required").formatted(Formatting.DARK_RED)));
       } else {
-        // TODO: allows bypassing permissions (see command::editor in mca)
-        parent.child(Components.button(Text.translatable("gui.mca-utilities.button.use-preset"),
+        parent.child(Components.button(Text.translatable("gui.mca-utilities.button.edit-preset"),
             (button) -> {
+              VillagerData data = new VillagerData();
+
               Screen screen = new CustomVillagerEditorScreen(this, this.client.player.getUuid(),
                   this.client.player.getUuid()) {
                 @Override
@@ -66,45 +69,26 @@ public class MCAUtilitiesModMenu implements ModMenuApi {
                   super.setPage(page);
 
                   if (loaded) {
+                    data.update(this.villager);
                     VillagerData.fromPreset(MCAUtilities.CONFIG.read().preset).apply(this.villager);
                   }
+                }
+
+                @Override
+                public void close() {
+                  Model config = MCAUtilities.CONFIG.read();
+                  config.preset = new VillagerData(this.villager).toPreset();
+                  MCAUtilities.CONFIG.write(config);
+
+                  data.apply(this.villager);
+                  this.syncVillagerData();
+
+                  super.close();
                 }
               };
 
               this.client.setScreen(screen);
-            })).child(Components.label(Text.literal(" "))).child(Components
-                .button(Text.translatable("gui.mca-utilities.button.edit-preset"), (button) -> {
-                  VillagerData data = new VillagerData();
-
-                  Screen screen = new CustomVillagerEditorScreen(this, this.client.player.getUuid(),
-                      this.client.player.getUuid()) {
-                    @Override
-                    protected void setPage(String page) {
-                      boolean loaded = this.page == "loading";
-                      super.setPage(page);
-
-                      if (loaded) {
-                        data.update(this.villager);
-                        VillagerData.fromPreset(MCAUtilities.CONFIG.read().preset)
-                            .apply(this.villager);
-                      }
-                    }
-
-                    @Override
-                    public void close() {
-                      Model config = MCAUtilities.CONFIG.read();
-                      config.preset = new VillagerData(this.villager).toPreset();
-                      MCAUtilities.CONFIG.write(config);
-
-                      data.apply(this.villager);
-                      this.syncVillagerData();
-
-                      super.close();
-                    }
-                  };
-
-                  this.client.setScreen(screen);
-                }));
+            }));
       }
 
       rootComponent.child(parent.padding(Insets.of(10)).surface(Surface.PANEL)

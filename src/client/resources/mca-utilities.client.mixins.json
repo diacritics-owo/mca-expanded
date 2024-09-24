@@ -2,7 +2,7 @@
   "required": true,
   "package": "diacritics.owo.mixin.client",
   "compatibilityLevel": "JAVA_17",
-  "client": ["SkinLibraryScreenMixin"],
+  "client": ["SkinLibraryScreenMixin", "VillagerEditorScreenMixin"],
   "injectors": {
     "defaultRequire": 1
   }
