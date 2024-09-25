@@ -56,7 +56,6 @@ public abstract class VillagerEditorScreenMixin extends Screen {
 
     this.addDrawableChild(new ButtonWidget(x + width, y, width, height,
         Text.translatable("gui.mca-expanded.button.export"), (button) -> {
-          // TODO: coloring doesn't work with hair from the library
           Optional<NativeImage> result = Stream
               .of(ClientHelpers.readImage(ClientHelpers.SKIN.getColor(this.villager, 0),
                   ClientHelpers.SKIN.getSkin(this.villager)),
@@ -65,13 +64,12 @@ public abstract class VillagerEditorScreenMixin extends Screen {
                   ClientHelpers.readImage(ClientHelpers.HAIR.getColor(this.villager, 0),
                       ClientHelpers.HAIR.getSkin(this.villager)))
               .filter((image) -> image != null).reduce((a, b) -> {
-                // TODO: verify size
                 NativeImage image = new NativeImage(64, 64, true);
 
                 for (int i = 0; i < image.getWidth(); i++) {
                   for (int j = 0; j < image.getHeight(); j++) {
                     image.setColor(i, j, a.getColor(i, j));
-                    image.blend(i, j, b.getColor(i, j)); // TODO: does blending always work?
+                    image.blend(i, j, b.getColor(i, j));
                   }
                 }
 

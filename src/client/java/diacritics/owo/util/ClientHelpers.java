@@ -29,11 +29,6 @@ public class ClientHelpers {
       new HairLayer<>(null, null);
 
   public static final NativeImage readImage(Identifier identifier) {
-    return readImage(new float[] {1, 1, 1}, identifier);
-  }
-
-  @Nullable
-  public static final NativeImage readImage(float[] tint, Identifier identifier) {
     if (identifier.getNamespace().equals("immersive_library")) {
       try {
         return SkinCache
@@ -55,12 +50,22 @@ public class ClientHelpers {
 
     try {
       NativeImage image = NativeImage.read(resource.getInputStream());
-      image.apply((abgr) -> Abgr.getAbgr(Abgr.getAlpha(abgr), (int) (tint[2] * Abgr.getBlue(abgr)),
-          (int) (tint[1] * Abgr.getGreen(abgr)), (int) (tint[0] * Abgr.getRed(abgr))));
       return image;
     } catch (IOException exception) {
       McaExpanded.LOGGER.error("encountered an error while reading {}", identifier, exception);
       return null;
     }
+  }
+
+  @Nullable
+  public static final NativeImage readImage(float[] tint, Identifier identifier) {
+    NativeImage image = readImage(identifier);
+
+    if (image != null) {
+      image.apply((abgr) -> Abgr.getAbgr(Abgr.getAlpha(abgr), (int) (tint[2] * Abgr.getBlue(abgr)),
+          (int) (tint[1] * Abgr.getGreen(abgr)), (int) (tint[0] * Abgr.getRed(abgr))));
+    }
+
+    return image;
   }
 }
