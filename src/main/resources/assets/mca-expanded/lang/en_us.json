@@ -1,13 +1,17 @@
 {
-  "gui.mca-expanded.button.use-preset": "Use Preset",
-  "gui.mca-expanded.config.edit-preset": "Edit",
-  "gui.mca-expanded.config.remove-preset": "Remove",
-  "gui.mca-expanded.config.use-preset": "Use",
-  "gui.mca-expanded.button.editPresets": "Edit Presets",
-  "gui.mca-expanded.button.presets": "Presets",
-  "gui.mca-expanded.world-required": "You must be in a world to edit presets",
+  "gui.mca-expanded.config.preset.edit": "Edit",
+  "gui.mca-expanded.config.preset.remove": "Remove",
+  "gui.mca-expanded.config.preset.use": "Use",
+  "gui.mca-expanded.config.preset.create": "Create",
+  "gui.mca-expanded.config.preset.editing": "Editing Preset: %s",
+
+  "gui.mca-expanded.config.presets": "Presets",
+  "gui.mca-expanded.config.presets.edit": "Edit Presets",
+
+  "gui.mca-expanded.config.world_required": "You must be in a world to edit presets",
+
   "gui.mca-expanded.config.destiny": "Destiny Screen: %s",
-  "gui.mca-expanded.button.export": "Export",
-  "gui.mca-expanded.button.export.tooltip": "Export as a skin",
-  "gui.mca-expanded.button.add-preset": "Add Preset"
+
+  "gui.mca-expanded.skin.export": "Export",
+  "gui.mca-expanded.skin.export.tooltip": "Export as a skin"
 }

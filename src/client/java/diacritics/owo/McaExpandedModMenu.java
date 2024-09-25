@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import diacritics.owo.util.ClientHelpers;
+import diacritics.owo.util.Translations;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
@@ -15,7 +16,6 @@ import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.core.Surface;
 import io.wispforest.owo.ui.core.VerticalAlignment;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class McaExpandedModMenu implements ModMenuApi {
@@ -54,8 +54,8 @@ public class McaExpandedModMenu implements ModMenuApi {
       parent.child(ClientHelpers.destinyButton().margins(Insets.bottom(ClientHelpers.PADDING_B)));
 
       if (!inWorld) {
-        parent.child(Components.label(
-            Text.translatable("gui.mca-expanded.world-required").formatted(Formatting.BLACK)));
+        parent.child(
+            Components.label(Translations.WORLD_REQUIRED.copy().formatted(Formatting.BLACK)));
       } else {
         parent.child(ClientHelpers.presetListButton(this, rootComponent));
       }

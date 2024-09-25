@@ -18,7 +18,7 @@ public abstract class DestinyScreenMixin extends Screen {
   }
 
   @WrapMethod(method = "setPage")
-  private void setPage(String page, Operation<Void> original) {
+  private void mcaExpanded$setPage(String page, Operation<Void> original) {
     if (!McaExpanded.CONFIG.read().destiny && page != null
         && (page.equals("destiny") || page.equals("story"))) {
       NetworkHandler.sendToServer(new DestinyMessage(true));

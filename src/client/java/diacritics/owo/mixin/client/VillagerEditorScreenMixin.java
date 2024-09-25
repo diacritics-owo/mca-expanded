@@ -15,7 +15,9 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import diacritics.owo.McaExpanded;
 import diacritics.owo.config.Config.Model;
+import diacritics.owo.config.Config.PresetModel;
 import diacritics.owo.util.ClientHelpers;
+import diacritics.owo.util.Translations;
 import diacritics.owo.util.VillagerData;
 import fabric.net.mca.client.gui.VillagerEditorScreen;
 import fabric.net.mca.entity.VillagerEntityMCA;
@@ -59,7 +61,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
   }
 
   @Inject(at = @At("TAIL"), method = "setPage")
-  protected void setPage(String page, CallbackInfo info) {
+  protected void mcaExpanded$setPage(String page, CallbackInfo info) {
     if (page.equals("clothing") || page.equals("hair"))
       return;
 
@@ -70,11 +72,12 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     int y = this.height / 2 - 85;
 
     ButtonComponent presetListButton =
-        ClientHelpers.presetListButton(this, this.uiAdapter.rootComponent, () -> {
+        ClientHelpers.presetListButton(this, this.uiAdapter.rootComponent, true, () -> {
           this.syncVillagerData();
         }, Optional.of((preset) -> {
           Model config = McaExpanded.CONFIG.read();
-          VillagerData.fromPreset(config.presets.get(preset)).apply(this.villager);
+          VillagerData.fromPreset(config.presets.getOrDefault(preset, PresetModel.DEFAULT))
+              .apply(this.villager);
           this.syncVillagerData();
           this.requestVillagerData();
         }));
@@ -84,42 +87,40 @@ public abstract class VillagerEditorScreenMixin extends Screen {
 
     this.uiAdapter.rootComponent.child(presetListButton);
 
-    this.addDrawableChild(
-        ButtonWidget.builder(Text.translatable("gui.mca-expanded.button.export"), (button) -> {
-          Optional<NativeImage> result = Stream
-              .of(ClientHelpers.readImage(ClientHelpers.SKIN.getColor(this.villager, 0),
-                  ClientHelpers.SKIN.getSkin(this.villager)),
-                  ClientHelpers.readImage(ClientHelpers.FACE.getSkin(this.villager)),
-                  ClientHelpers.readImage(ClientHelpers.CLOTHING.getSkin(this.villager)),
-                  ClientHelpers.readImage(ClientHelpers.HAIR.getColor(this.villager, 0),
-                      ClientHelpers.HAIR.getSkin(this.villager)))
-              .filter((image) -> image != null).reduce((a, b) -> {
-                NativeImage image = new NativeImage(64, 64, true);
+    this.addDrawableChild(ButtonWidget.builder(Translations.EXPORT, (button) -> {
+      Optional<NativeImage> result = Stream
+          .of(ClientHelpers.readImage(ClientHelpers.SKIN.getColor(this.villager, 0),
+              ClientHelpers.SKIN.getSkin(this.villager)),
+              ClientHelpers.readImage(ClientHelpers.FACE.getSkin(this.villager)),
+              ClientHelpers.readImage(ClientHelpers.CLOTHING.getSkin(this.villager)),
+              ClientHelpers.readImage(ClientHelpers.HAIR.getColor(this.villager, 0),
+                  ClientHelpers.HAIR.getSkin(this.villager)))
+          .filter((image) -> image != null).reduce((a, b) -> {
+            NativeImage image = new NativeImage(64, 64, true);
 
-                for (int i = 0; i < image.getWidth(); i++) {
-                  for (int j = 0; j < image.getHeight(); j++) {
-                    image.setColor(i, j, a.getColor(i, j));
-                    image.blend(i, j, b.getColor(i, j));
-                  }
-                }
-
-                return image;
-              });
-
-          if (result.isPresent()) {
-            try {
-              File output = File.createTempFile("mca", ".png");
-              result.get().writeTo(output);
-              Util.getOperatingSystem().open(output);
-            } catch (IOException exception) {
-              McaExpanded.LOGGER.error("failed to create and write to temp file", exception);
+            for (int i = 0; i < image.getWidth(); i++) {
+              for (int j = 0; j < image.getHeight(); j++) {
+                image.setColor(i, j, a.getColor(i, j));
+                image.blend(i, j, b.getColor(i, j));
+              }
             }
-          } else {
-            McaExpanded.LOGGER.error("failed to export image (optional was empty)");
-          }
-        }).dimensions(x + width, y, width, height)
-            .tooltip(Tooltip.of(Text.translatable("gui.mca-expanded.button.export.tooltip")))
-            .build());
+
+            return image;
+          });
+
+      if (result.isPresent()) {
+        try {
+          File output = File.createTempFile("mca", ".png");
+          result.get().writeTo(output);
+          Util.getOperatingSystem().open(output);
+        } catch (IOException exception) {
+          McaExpanded.LOGGER.error("failed to create and write to temp file", exception);
+        }
+      } else {
+        McaExpanded.LOGGER.error("failed to export image (optional was empty)");
+      }
+    }).dimensions(x + width, y, width, height).tooltip(Tooltip.of(Translations.EXPORT_TOOLTIP))
+        .build());
   }
 
   // owo-ui things :3
@@ -134,7 +135,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
   public void build(FlowLayout rootComponent) {};
 
   @Inject(method = "init", at = @At("HEAD"))
-  public void init(CallbackInfo info) {
+  public void mcaExpanded$init(CallbackInfo info) {
     if (this.invalid)
       return;
 
@@ -159,7 +160,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
   }
 
   @WrapMethod(method = "render")
-  public void render(DrawContext context, int mouseX, int mouseY, float delta,
+  public void mcaExpanded$render(DrawContext context, int mouseX, int mouseY, float delta,
       Operation<Void> original) {
     if (!this.invalid) {
       original.call(context, mouseX, mouseY, delta);
@@ -176,9 +177,10 @@ public abstract class VillagerEditorScreenMixin extends Screen {
 
   @Override
   public void clearChildren() {
+    // this is kinda janky
     if (this.uiAdapter != null) {
-      this.uiAdapter.rootComponent.clearChildren();
       super.remove(this.uiAdapter);
+      this.uiAdapter.rootComponent.clearChildren();
     }
 
     super.clearChildren();

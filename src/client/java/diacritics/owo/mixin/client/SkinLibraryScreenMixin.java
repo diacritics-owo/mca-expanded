@@ -21,7 +21,7 @@ public abstract class SkinLibraryScreenMixin {
   }
 
   @WrapMethod(method = "returnToPreviousScreen")
-  private void returnToPreviousScreen(Operation<Void> original) {
+  private void mcaExpanded$returnToPreviousScreen(Operation<Void> original) {
     if (this.previousScreen instanceof CustomVillagerEditorScreen) {
       this.close();
     } else {

@@ -41,8 +41,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper.Abgr;
 
-// TODO: standardise the translations oh my god
-// (also probably namespace the mixins)
 public class ClientHelpers {
   public static final int PADDING_A = 10;
   public static final int PADDING_B = 5;
@@ -104,77 +102,75 @@ public class ClientHelpers {
           config.destiny = !config.destiny;
           McaExpanded.CONFIG.write(config);
 
-          button.setMessage(Text.translatable("gui.mca-expanded.config.destiny",
-              McaExpanded.CONFIG.read().destiny ? "Enabled" : "Disabled"));
+          button.setMessage(Translations.DESTINY
+              .apply(McaExpanded.CONFIG.read().destiny ? "Enabled" : "Disabled"));
         });
   }
 
-  // TODO: pass drawbackground
-  // TODO: closing the editor closes the screen entirely
   public static ButtonComponent presetListButton(Screen parent, FlowLayout root) {
-    return presetListButton(parent, root, () -> {
+    return presetListButton(parent, root, false, () -> {
     }, Optional.empty());
   }
 
   public static ButtonComponent presetListButton(Screen parent, FlowLayout root,
-      Runnable beforeOpen, Optional<Consumer<String>> use) {
-    return Components.button(Text.translatable(use.isPresent() ? "gui.mca-expanded.button.presets"
-        : "gui.mca-expanded.button.editPresets"), (button) -> {
+      boolean drawBackground, Runnable beforeOpen, Optional<Consumer<String>> use) {
+    return Components.button(use.isPresent() ? Translations.PRESETS : Translations.EDIT_PRESETS,
+        (button) -> {
           beforeOpen.run();
           OverlayContainer<ParentComponent> overlay = Containers.overlay(null);
           overlay.child(Containers
-              .verticalScroll(Sizing.content(), Sizing.fill(55), presetList(parent, overlay, use))
+              .verticalScroll(Sizing.content(), Sizing.fill(55),
+                  presetList(parent, overlay, drawBackground, use))
               .surface(Surface.PANEL).padding(Insets.of(PADDING_B)))
               .surface(Surface.VANILLA_TRANSLUCENT).zIndex(100);
           root.child(overlay);
         });
   }
 
-  public static FlowLayout presetList(Screen parent, Component root,
+  public static FlowLayout presetList(Screen parent, Component root, boolean drawBackground,
       Optional<Consumer<String>> use) {
     return Components.list(new ArrayList<>(McaExpanded.CONFIG.read().presets.keySet()),
         (layout) -> {
-          layout.child(Components.button(Text.translatable("gui.mca-expanded.button.add-preset"),
-              (button) -> {
-                Model config = McaExpanded.CONFIG.read();
-                config.presets.put(UUID.randomUUID().toString(), PresetModel.DEFAULT);
-                McaExpanded.CONFIG.write(config);
+          layout.child(Components.button(Translations.CREATE_PRESET, (button) -> {
+            Model config = McaExpanded.CONFIG.read();
+            config.presets.put(UUID.randomUUID().toString(), PresetModel.DEFAULT);
+            McaExpanded.CONFIG.write(config);
 
-                FlowLayout list = ((FlowLayout) button.parent());
-                list.clearChildren();
-                list.children(presetList(parent, root, use).children());
-              })).padding(Insets.of(PADDING_B)).verticalAlignment(VerticalAlignment.CENTER);
+            FlowLayout list = ((FlowLayout) button.parent());
+            list.clearChildren();
+            list.children(presetList(parent, root, drawBackground, use).children());
+          })).padding(Insets.of(PADDING_B)).verticalAlignment(VerticalAlignment.CENTER);
         }, (id) -> {
           TextBoxComponent name = Components.textBox(Sizing.fixed(135),
-              McaExpanded.CONFIG.read().presets.get(id).presetName);
+              McaExpanded.CONFIG.read().presets.getOrDefault(id, PresetModel.DEFAULT).presetName);
           name.onChanged().subscribe((newValue) -> {
             Model config = McaExpanded.CONFIG.read();
-            // TODO: this is probably safe?
-            config.presets.get(id).presetName = newValue;
+            if (config.presets.containsKey(id)) {
+              config.presets.get(id).presetName = newValue;
+            }
             McaExpanded.CONFIG.write(config);
           });
           name.margins(Insets.right(PADDING_B));
 
           GridLayout result = Containers.grid(Sizing.content(), Sizing.content(), 1, 4);
 
-          result.child(name, 0, 0).child(editPresetButton(parent, id), 0, 1).child(Components
-              .button(Text.translatable("gui.mca-expanded.config.remove-preset"), (button) -> {
+          result.child(name, 0, 0).child(editPresetButton(parent, id, drawBackground), 0, 1)
+              .child(Components.button(Translations.REMOVE_PRESET, (button) -> {
                 Model config = McaExpanded.CONFIG.read();
                 config.presets.remove(id);
                 McaExpanded.CONFIG.write(config);
 
                 FlowLayout list = ((FlowLayout) button.parent().parent());
                 list.clearChildren();
-                list.children(presetList(parent, root, use).children());
+                list.children(presetList(parent, root, drawBackground, use).children());
               }).margins(Insets.left(PADDING_B)), 0, 2).margins(Insets.top(PADDING_B))
               .verticalAlignment(VerticalAlignment.CENTER);
 
           if (use.isPresent()) {
-            result.child(Components
-                .button(Text.translatable("gui.mca-expanded.config.use-preset"), (button) -> {
-                  root.remove();
-                  use.get().accept(id);
-                }).margins(Insets.left(PADDING_B)), 0, 3);
+            result.child(Components.button(Translations.USE_PRESET, (button) -> {
+              root.remove();
+              use.get().accept(id);
+            }).margins(Insets.left(PADDING_B)), 0, 3);
           }
 
           return result;
@@ -188,49 +184,49 @@ public class ClientHelpers {
   public static ButtonComponent editPresetButton(Screen parent, String preset,
       boolean drawBackground) {
     MinecraftClient client = MinecraftClient.getInstance();
-    return Components.button(Text.translatable("gui.mca-expanded.config.edit-preset"), (button) -> {
+    return Components.button(Translations.EDIT_PRESET, (button) -> {
       VillagerData data = new VillagerData();
 
-      CustomVillagerEditorScreen screen =
-          new CustomVillagerEditorScreen(parent, client.player.getUuid(), client.player.getUuid()) {
-            @Override
-            protected void setPage(String page) {
-              boolean loaded = this.page != null && this.page.equals("loading");
-              super.setPage(page);
+      CustomVillagerEditorScreen screen = new CustomVillagerEditorScreen(parent,
+          McaExpanded.CONFIG.read().presets.getOrDefault(preset, PresetModel.DEFAULT).presetName,
+          client.player.getUuid(), client.player.getUuid()) {
+        @Override
+        protected void setPage(String page) {
+          boolean loaded = this.page != null && this.page.equals("loading");
+          super.setPage(page);
 
-              if (loaded) {
-                data.update(this.villager);
-                VillagerData
-                    .fromPreset(
-                        McaExpanded.CONFIG.read().presets.getOrDefault(preset, PresetModel.DEFAULT))
-                    .apply(this.villager);
-                // TODO: the selected gender is feminine even though the default is masc
-              }
-            }
+          if (loaded) {
+            data.update(this.villager);
+            VillagerData
+                .fromPreset(
+                    McaExpanded.CONFIG.read().presets.getOrDefault(preset, PresetModel.DEFAULT))
+                .apply(this.villager);
+            // TODO: the selected gender is feminine even though the default is masc
+          }
+        }
 
-            @Override
-            public void close() {
-              Model config = McaExpanded.CONFIG.read();
-              // TODO: this is also probably safe?
-              config.presets.put(preset,
-                  new VillagerData(this.villager).toPreset(config.presets.get(preset).presetName));
-              McaExpanded.CONFIG.write(config);
+        @Override
+        public void close() {
+          Model config = McaExpanded.CONFIG.read();
+          config.presets.put(preset, new VillagerData(this.villager)
+              .toPreset(config.presets.getOrDefault(preset, PresetModel.DEFAULT).presetName));
+          McaExpanded.CONFIG.write(config);
 
-              data.apply(this.villager);
-              this.syncVillagerData();
+          data.apply(this.villager);
+          this.syncVillagerData();
 
-              super.close();
-            }
+          super.close();
+        }
 
-            @Override
-            public void renderBackground(DrawContext context) {
-              if (drawBackground) {
-                this.renderBackgroundTexture(context);
-              } else {
-                super.renderBackground(context);
-              }
-            }
-          };
+        @Override
+        public void renderBackground(DrawContext context) {
+          if (drawBackground) {
+            this.renderBackgroundTexture(context);
+          } else {
+            super.renderBackground(context);
+          }
+        }
+      };
 
       client.setScreen(screen);
     });
