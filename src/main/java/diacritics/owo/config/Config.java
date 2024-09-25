@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import diacritics.owo.McaExpanded;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class Config {
-  private Gson gson = new Gson();
+  private Gson gson = new GsonBuilder().setPrettyPrinting().create();
   private String filename;
 
   public Config(String filename) {
@@ -68,9 +69,10 @@ public class Config {
 
   public static class PresetModel {
     public static final PresetModel DEFAULT =
-        new PresetModel("", new HairModel("", new float[] {0, 0, 0}),
-            new GeneticsModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), new TraitModel[0],
-            GenderModel.MASCULINE);
+        new PresetModel("mca:skins/clothing/normal/neutral/none/0.png",
+            new HairModel("mca:skins/hair/male/25.png", new float[] {0, 0, 0}),
+            new GeneticsModel(0.5f, 0.5f, 0.5f, 0.33f, 0.33f, 0.33f, 1, 1, 0, 0.5f, 0.5f),
+            new TraitModel[0], GenderModel.MASCULINE);
 
     public String clothing;
     public HairModel hair;
