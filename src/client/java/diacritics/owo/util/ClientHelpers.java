@@ -23,7 +23,10 @@ import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.GridLayout;
+import io.wispforest.owo.ui.container.OverlayContainer;
+import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Insets;
+import io.wispforest.owo.ui.core.ParentComponent;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.core.Surface;
 import io.wispforest.owo.ui.core.VerticalAlignment;
@@ -38,6 +41,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper.Abgr;
 
+// TODO: standardise the translations oh my god
+// (also probably namespace the mixins)
 public class ClientHelpers {
   public static final int PADDING_A = 10;
   public static final int PADDING_B = 5;
@@ -107,21 +112,26 @@ public class ClientHelpers {
   // TODO: pass drawbackground
   // TODO: closing the editor closes the screen entirely
   public static ButtonComponent presetListButton(Screen parent, FlowLayout root) {
-    return presetListButton(parent, root, Optional.empty());
+    return presetListButton(parent, root, () -> {
+    }, Optional.empty());
   }
 
   public static ButtonComponent presetListButton(Screen parent, FlowLayout root,
-      Optional<Consumer<String>> use) {
-    return Components.button(Text.translatable("gui.mca-expanded.button.editPresets"), (button) -> {
-      root.child(Containers
-          .overlay(
-              Containers.verticalScroll(Sizing.content(), Sizing.fill(55), presetList(parent, use))
-                  .surface(Surface.PANEL).padding(Insets.of(PADDING_B)))
-          .surface(Surface.VANILLA_TRANSLUCENT).zIndex(1));
-    });
+      Runnable beforeOpen, Optional<Consumer<String>> use) {
+    return Components.button(Text.translatable(use.isPresent() ? "gui.mca-expanded.button.presets"
+        : "gui.mca-expanded.button.editPresets"), (button) -> {
+          beforeOpen.run();
+          OverlayContainer<ParentComponent> overlay = Containers.overlay(null);
+          overlay.child(Containers
+              .verticalScroll(Sizing.content(), Sizing.fill(55), presetList(parent, overlay, use))
+              .surface(Surface.PANEL).padding(Insets.of(PADDING_B)))
+              .surface(Surface.VANILLA_TRANSLUCENT).zIndex(100);
+          root.child(overlay);
+        });
   }
 
-  public static FlowLayout presetList(Screen parent, Optional<Consumer<String>> use) {
+  public static FlowLayout presetList(Screen parent, Component root,
+      Optional<Consumer<String>> use) {
     return Components.list(new ArrayList<>(McaExpanded.CONFIG.read().presets.keySet()),
         (layout) -> {
           layout.child(Components.button(Text.translatable("gui.mca-expanded.button.add-preset"),
@@ -132,7 +142,7 @@ public class ClientHelpers {
 
                 FlowLayout list = ((FlowLayout) button.parent());
                 list.clearChildren();
-                list.children(presetList(parent, use).children());
+                list.children(presetList(parent, root, use).children());
               })).padding(Insets.of(PADDING_B)).verticalAlignment(VerticalAlignment.CENTER);
         }, (id) -> {
           TextBoxComponent name = Components.textBox(Sizing.fixed(135),
@@ -155,14 +165,14 @@ public class ClientHelpers {
 
                 FlowLayout list = ((FlowLayout) button.parent().parent());
                 list.clearChildren();
-                list.children(presetList(parent, use).children());
+                list.children(presetList(parent, root, use).children());
               }).margins(Insets.left(PADDING_B)), 0, 2).margins(Insets.top(PADDING_B))
               .verticalAlignment(VerticalAlignment.CENTER);
 
           if (use.isPresent()) {
             result.child(Components
                 .button(Text.translatable("gui.mca-expanded.config.use-preset"), (button) -> {
-                  result.remove();
+                  root.remove();
                   use.get().accept(id);
                 }).margins(Insets.left(PADDING_B)), 0, 3);
           }
