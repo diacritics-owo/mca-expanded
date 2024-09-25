@@ -18,6 +18,12 @@ public abstract class VillagerEditorScreenMixin extends Screen {
   @Shadow
   protected final VillagerEntityMCA villager;
 
+  @Shadow
+  abstract public void syncVillagerData();
+
+  @Shadow
+  private void requestVillagerData() {};
+
   protected VillagerEditorScreenMixin(Text title) {
     super(title);
     this.villager = null;
@@ -25,6 +31,9 @@ public abstract class VillagerEditorScreenMixin extends Screen {
 
   @Inject(at = @At("TAIL"), method = "setPage")
   protected void setPage(String page, CallbackInfo info) {
+    if (page.equals("clothing") || page.equals("hair"))
+      return;
+
     int width = 135;
     int height = 20;
 
@@ -34,6 +43,8 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     this.addDrawableChild(new ButtonWidget(x, y, width, height,
         Text.translatable("gui.mca-expanded.button.use-preset"), (button) -> {
           VillagerData.fromPreset(McaExpanded.CONFIG.read().preset).apply(this.villager);
+          this.syncVillagerData();
+          this.requestVillagerData();
         }));
   }
 }
