@@ -1,10 +1,15 @@
 package diacritics.owo.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 import diacritics.owo.McaExpanded;
 import diacritics.owo.config.Config.Model;
+import diacritics.owo.config.Config.PresetModel;
 import diacritics.owo.gui.CustomVillagerEditorScreen;
 import fabric.net.mca.client.gui.immersive_library.SkinCache;
 import fabric.net.mca.client.gui.immersive_library.types.LiteContent;
@@ -14,6 +19,14 @@ import fabric.net.mca.client.render.layer.HairLayer;
 import fabric.net.mca.client.render.layer.SkinLayer;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
+import io.wispforest.owo.ui.component.TextBoxComponent;
+import io.wispforest.owo.ui.container.Containers;
+import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.container.GridLayout;
+import io.wispforest.owo.ui.core.Insets;
+import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.core.Surface;
+import io.wispforest.owo.ui.core.VerticalAlignment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -26,6 +39,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper.Abgr;
 
 public class ClientHelpers {
+  public static final int PADDING_A = 10;
+  public static final int PADDING_B = 5;
+
   public static final SkinLayer<LivingEntity, BipedEntityModel<LivingEntity>> SKIN =
       new SkinLayer<>(null, null);
   public static final FaceLayer<LivingEntity, BipedEntityModel<LivingEntity>> FACE =
@@ -88,11 +104,79 @@ public class ClientHelpers {
         });
   }
 
-  public static ButtonComponent editPresetButton(Screen parent) {
-    return editPresetButton(parent, false);
+  // TODO: pass drawbackground
+  // TODO: closing the editor closes the screen entirely
+  public static ButtonComponent presetListButton(Screen parent, FlowLayout root) {
+    return presetListButton(parent, root, Optional.empty());
   }
 
-  public static ButtonComponent editPresetButton(Screen parent, boolean drawBackground) {
+  public static ButtonComponent presetListButton(Screen parent, FlowLayout root,
+      Optional<Consumer<String>> use) {
+    return Components.button(Text.translatable("gui.mca-expanded.button.editPresets"), (button) -> {
+      root.child(Containers
+          .overlay(
+              Containers.verticalScroll(Sizing.content(), Sizing.fill(55), presetList(parent, use))
+                  .surface(Surface.PANEL).padding(Insets.of(PADDING_B)))
+          .surface(Surface.VANILLA_TRANSLUCENT).zIndex(1));
+    });
+  }
+
+  public static FlowLayout presetList(Screen parent, Optional<Consumer<String>> use) {
+    return Components.list(new ArrayList<>(McaExpanded.CONFIG.read().presets.keySet()),
+        (layout) -> {
+          layout.child(Components.button(Text.translatable("gui.mca-expanded.button.add-preset"),
+              (button) -> {
+                Model config = McaExpanded.CONFIG.read();
+                config.presets.put(UUID.randomUUID().toString(), PresetModel.DEFAULT);
+                McaExpanded.CONFIG.write(config);
+
+                FlowLayout list = ((FlowLayout) button.parent());
+                list.clearChildren();
+                list.children(presetList(parent, use).children());
+              })).padding(Insets.of(PADDING_B)).verticalAlignment(VerticalAlignment.CENTER);
+        }, (id) -> {
+          TextBoxComponent name = Components.textBox(Sizing.fixed(135),
+              McaExpanded.CONFIG.read().presets.get(id).presetName);
+          name.onChanged().subscribe((newValue) -> {
+            Model config = McaExpanded.CONFIG.read();
+            // TODO: this is probably safe?
+            config.presets.get(id).presetName = newValue;
+            McaExpanded.CONFIG.write(config);
+          });
+          name.margins(Insets.right(PADDING_B));
+
+          GridLayout result = Containers.grid(Sizing.content(), Sizing.content(), 1, 4);
+
+          result.child(name, 0, 0).child(editPresetButton(parent, id), 0, 1).child(Components
+              .button(Text.translatable("gui.mca-expanded.config.remove-preset"), (button) -> {
+                Model config = McaExpanded.CONFIG.read();
+                config.presets.remove(id);
+                McaExpanded.CONFIG.write(config);
+
+                FlowLayout list = ((FlowLayout) button.parent().parent());
+                list.clearChildren();
+                list.children(presetList(parent, use).children());
+              }).margins(Insets.left(PADDING_B)), 0, 2).margins(Insets.top(PADDING_B))
+              .verticalAlignment(VerticalAlignment.CENTER);
+
+          if (use.isPresent()) {
+            result.child(Components
+                .button(Text.translatable("gui.mca-expanded.config.use-preset"), (button) -> {
+                  result.remove();
+                  use.get().accept(id);
+                }).margins(Insets.left(PADDING_B)), 0, 3);
+          }
+
+          return result;
+        }, true);
+  }
+
+  public static ButtonComponent editPresetButton(Screen parent, String preset) {
+    return editPresetButton(parent, preset, false);
+  }
+
+  public static ButtonComponent editPresetButton(Screen parent, String preset,
+      boolean drawBackground) {
     MinecraftClient client = MinecraftClient.getInstance();
     return Components.button(Text.translatable("gui.mca-expanded.config.edit-preset"), (button) -> {
       VillagerData data = new VillagerData();
@@ -106,14 +190,20 @@ public class ClientHelpers {
 
               if (loaded) {
                 data.update(this.villager);
-                VillagerData.fromPreset(McaExpanded.CONFIG.read().preset).apply(this.villager);
+                VillagerData
+                    .fromPreset(
+                        McaExpanded.CONFIG.read().presets.getOrDefault(preset, PresetModel.DEFAULT))
+                    .apply(this.villager);
+                // TODO: the selected gender is feminine even though the default is masc
               }
             }
 
             @Override
             public void close() {
               Model config = McaExpanded.CONFIG.read();
-              config.preset = new VillagerData(this.villager).toPreset();
+              // TODO: this is also probably safe?
+              config.presets.put(preset,
+                  new VillagerData(this.villager).toPreset(config.presets.get(preset).presetName));
               McaExpanded.CONFIG.write(config);
 
               data.apply(this.villager);

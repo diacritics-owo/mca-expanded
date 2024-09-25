@@ -91,8 +91,8 @@ public class VillagerData {
     this.gender = entity.getGenetics().getGender();
   }
 
-  public PresetModel toPreset() {
-    return new PresetModel(this.clothing, new HairModel(this.hair, this.hairColor),
+  public PresetModel toPreset(String presetName) {
+    return new PresetModel(presetName, this.clothing, new HairModel(this.hair, this.hairColor),
         new GeneticsModel(this.genetics.get(Genetics.SIZE), this.genetics.get(Genetics.WIDTH),
             this.genetics.get(Genetics.BREAST), this.genetics.get(Genetics.MELANIN),
             this.genetics.get(Genetics.HEMOGLOBIN), this.genetics.get(Genetics.EUMELANIN),

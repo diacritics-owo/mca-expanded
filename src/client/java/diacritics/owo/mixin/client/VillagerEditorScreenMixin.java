@@ -11,10 +11,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import diacritics.owo.McaExpanded;
 import diacritics.owo.util.ClientHelpers;
-import diacritics.owo.util.VillagerData;
 import fabric.net.mca.client.gui.VillagerEditorScreen;
 import fabric.net.mca.entity.VillagerEntityMCA;
-import io.wispforest.owo.ui.component.ButtonComponent;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -44,9 +42,6 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     this.villager = null;
   }
 
-  private ButtonWidget usePreset;
-  private ButtonWidget editPreset;
-
   @Inject(at = @At("TAIL"), method = "setPage")
   protected void setPage(String page, CallbackInfo info) {
     if (page.equals("clothing") || page.equals("hair"))
@@ -58,21 +53,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     int x = this.width / 2 - 175 + 20;
     int y = this.height / 2 - 85;
 
-    this.usePreset = this.addDrawableChild(
-        ButtonWidget.builder(Text.translatable("gui.mca-expanded.button.use-preset"), (button) -> {
-          VillagerData.fromPreset(McaExpanded.CONFIG.read().preset).apply(this.villager);
-          this.syncVillagerData();
-          this.requestVillagerData();
-        }).dimensions(x, y, width, height).build());
-
-    ButtonComponent editPresetButton = ClientHelpers.editPresetButton(this, true);
-
-    this.editPreset =
-        this.addDrawableChild(ButtonWidget.builder(editPresetButton.getMessage(), (button) -> {
-          this.syncVillagerData();
-          editPresetButton.onPress();
-        }).dimensions(x, y + height, width, height).build());
-    this.editPreset.visible = false;
+    // TODO: preset button
 
     this.addDrawableChild(
         ButtonWidget.builder(Text.translatable("gui.mca-expanded.button.export"), (button) -> {
@@ -110,16 +91,5 @@ public abstract class VillagerEditorScreenMixin extends Screen {
         }).dimensions(x + width, y, width, height)
             .tooltip(Tooltip.of(Text.translatable("gui.mca-expanded.button.export.tooltip")))
             .build());
-  }
-
-  @Override
-  public void tick() {
-    if (this.usePreset != null && this.editPreset != null) {
-      if (this.usePreset.isHovered() || this.editPreset.isHovered()) {
-        this.editPreset.visible = true;
-      } else {
-        this.editPreset.visible = false;
-      }
-    }
   }
 }

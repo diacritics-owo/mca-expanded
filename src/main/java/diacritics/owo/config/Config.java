@@ -3,6 +3,8 @@ package diacritics.owo.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.UUID;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import diacritics.owo.McaExpanded;
@@ -55,33 +57,36 @@ public class Config {
     }
   }
 
-  public static class Model {
-    public static final Model DEFAULT = new Model(true, PresetModel.DEFAULT);
+  public static class Model implements Cloneable {
+    public static final Model DEFAULT =
+        new Model(true, Map.of(UUID.randomUUID().toString(), PresetModel.DEFAULT));
 
     public boolean destiny;
-    public PresetModel preset;
+    public Map<String, PresetModel> presets;
 
-    public Model(boolean destiny, PresetModel preset) {
+    public Model(boolean destiny, Map<String, PresetModel> presets) {
       this.destiny = destiny;
-      this.preset = preset;
+      this.presets = presets;
     }
   }
 
   public static class PresetModel {
     public static final PresetModel DEFAULT =
-        new PresetModel("mca:skins/clothing/normal/neutral/none/0.png",
+        new PresetModel("Preset", "mca:skins/clothing/normal/neutral/none/0.png",
             new HairModel("mca:skins/hair/male/25.png", new float[] {0, 0, 0}),
             new GeneticsModel(0.5f, 0.5f, 0.5f, 0.33f, 0.33f, 0.33f, 1, 1, 0, 0.5f, 0.5f),
             new TraitModel[0], GenderModel.MASCULINE);
 
+    public String presetName;
     public String clothing;
     public HairModel hair;
     public GeneticsModel genetics;
     public TraitModel[] traits;
     public GenderModel gender;
 
-    public PresetModel(String clothes, HairModel hair, GeneticsModel genetics, TraitModel[] traits,
-        GenderModel gender) {
+    public PresetModel(String presetName, String clothes, HairModel hair, GeneticsModel genetics,
+        TraitModel[] traits, GenderModel gender) {
+      this.presetName = presetName;
       this.clothing = clothes;
       this.hair = hair;
       this.genetics = genetics;

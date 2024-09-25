@@ -51,16 +51,16 @@ public class McaExpandedModMenu implements ModMenuApi {
 
       FlowLayout parent = Containers.verticalFlow(Sizing.content(), Sizing.content());
 
-      parent.child(ClientHelpers.destinyButton()).child(Components.label(Text.literal(" ")));
+      parent.child(ClientHelpers.destinyButton().margins(Insets.bottom(ClientHelpers.PADDING_B)));
 
       if (!inWorld) {
         parent.child(Components.label(
             Text.translatable("gui.mca-expanded.world-required").formatted(Formatting.BLACK)));
       } else {
-        parent.child(ClientHelpers.editPresetButton(this));
+        parent.child(ClientHelpers.presetListButton(this, rootComponent));
       }
 
-      rootComponent.child(parent.padding(Insets.of(10)).surface(Surface.PANEL)
+      rootComponent.child(parent.padding(Insets.of(ClientHelpers.PADDING_A)).surface(Surface.PANEL)
           .verticalAlignment(VerticalAlignment.CENTER)
           .horizontalAlignment(HorizontalAlignment.CENTER));
     }
