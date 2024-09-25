@@ -53,7 +53,7 @@ dependencies {
 	modImplementation "maven.modrinth:minecraft-comes-alive-reborn:${project.mca_version}"
 	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-	modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+	annotationProcessor modImplementation("io.wispforest:owo-lib:${project.owo_version}")
   include "io.wispforest:owo-sentinel:${project.owo_version}"
 
 	modImplementation "maven.modrinth:architectury-api:${project.architectury_version}"
@@ -93,4 +93,18 @@ publishing {
 	}
 
 	repositories {}
+}
+
+tasks.build.doFirst {
+	// copy the generated code - not necessary for a successful build, but it quells vscode
+
+	exec {
+		commandLine 'mkdir', '-p', 'build/generated/sources/annotationProcessor/java/main/diacritics/owo/config'
+	}
+
+	copy {
+		from "build/generated/sources/annotationProcessor/java/main/"
+		into "build/generated/sources/annotationProcessor/java/main/diacritics/owo/config"
+		include "McaExpandedConfig.java"
+	}
 }

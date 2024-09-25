@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import diacritics.owo.McaExpanded;
-import diacritics.owo.config.Config.Model;
-import diacritics.owo.config.Config.PresetModel;
+import diacritics.owo.config.ConfigModel.PresetModel;
 import diacritics.owo.util.ClientHelpers;
 import diacritics.owo.util.Translations;
 import diacritics.owo.util.VillagerData;
@@ -75,8 +74,9 @@ public abstract class VillagerEditorScreenMixin extends Screen {
         ClientHelpers.presetListButton(this, this.uiAdapter.rootComponent, true, () -> {
           this.syncVillagerData();
         }, Optional.of((preset) -> {
-          Model config = McaExpanded.CONFIG.read();
-          VillagerData.fromPreset(config.presets.getOrDefault(preset, PresetModel.DEFAULT))
+          VillagerData
+              .fromPreset(
+                  McaExpanded.CONFIG.presets().getOrDefault(preset, PresetModel.defaultValue()))
               .apply(this.villager);
           this.syncVillagerData();
           this.requestVillagerData();
@@ -177,9 +177,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
 
   @Override
   public void clearChildren() {
-    // this is kinda janky
     if (this.uiAdapter != null) {
-      super.remove(this.uiAdapter);
       this.uiAdapter.rootComponent.clearChildren();
     }
 

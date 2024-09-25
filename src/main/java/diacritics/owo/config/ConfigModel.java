@@ -1,81 +1,32 @@
 package diacritics.owo.config;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import diacritics.owo.McaExpanded;
-import net.fabricmc.loader.api.FabricLoader;
+import io.wispforest.owo.config.annotation.Config;
 
-public class Config {
-  private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-  private String filename;
-
-  public Config(String filename) {
-    this.filename = filename;
+@Config(name = "mca-expanded", wrapperName = "McaExpandedConfig")
+public class ConfigModel implements Cloneable {
+  public static ConfigModel defaultValue() {
+    return new ConfigModel();
   }
 
-  public String filename() {
-    return this.filename;
+  public boolean destiny;
+  public Map<String, PresetModel> presets;
+
+  public ConfigModel(boolean destiny, Map<String, PresetModel> presets) {
+    this.destiny = destiny;
+    this.presets = presets;
   }
 
-  public Path path() {
-    return FabricLoader.getInstance().getConfigDir().resolve(this.filename + ".json");
-  }
-
-  public Boolean exists() {
-    return Files.exists(this.path());
-  }
-
-  public Model read() {
-    if (!this.exists()) {
-      McaExpanded.LOGGER.info(
-          "could not find a configuration file, so the default value will be written to {}",
-          this.path());
-      this.write(Model.DEFAULT);
-    }
-
-    try {
-      return gson.fromJson(Files.readString(this.path()), Model.class);
-    } catch (IOException exception) {
-      McaExpanded.LOGGER.error(
-          "encountered an error while reading the configuration, so the default value will be used",
-          exception);
-      return Model.DEFAULT;
-    }
-  }
-
-  public void write(Model value) {
-    try {
-      this.path().getParent().toFile().mkdirs();
-      Files.writeString(this.path(), this.gson.toJson(value));
-    } catch (IOException error) {
-      McaExpanded.LOGGER.error("failed to write configuration to {}!", this.path(), error);
-    }
-  }
-
-  public static class Model implements Cloneable {
-    public static final Model DEFAULT =
-        new Model(true, Map.of(UUID.randomUUID().toString(), PresetModel.DEFAULT));
-
-    public boolean destiny;
-    public Map<String, PresetModel> presets;
-
-    public Model(boolean destiny, Map<String, PresetModel> presets) {
-      this.destiny = destiny;
-      this.presets = presets;
-    }
+  public ConfigModel() {
+    this.destiny = true;
+    this.presets = Map.of(UUID.randomUUID().toString(), PresetModel.defaultValue());
   }
 
   public static class PresetModel {
-    public static final PresetModel DEFAULT =
-        new PresetModel("Preset", "mca:skins/clothing/normal/neutral/none/0.png",
-            new HairModel("mca:skins/hair/male/25.png", new float[] {0, 0, 0}),
-            new GeneticsModel(0.5f, 0.5f, 0.5f, 0.33f, 0.33f, 0.33f, 1, 1, 0, 0.5f, 0.5f),
-            new TraitModel[0], GenderModel.MASCULINE);
+    public static PresetModel defaultValue() {
+      return new PresetModel();
+    }
 
     public String presetName;
     public String clothing;
@@ -92,6 +43,15 @@ public class Config {
       this.genetics = genetics;
       this.traits = traits;
       this.gender = gender;
+    }
+
+    public PresetModel() {
+      this.presetName = "Preset";
+      this.clothing = "mca:skins/clothing/normal/neutral/none/0.png";
+      this.hair = new HairModel("mca:skins/hair/male/25.png", new float[] {0, 0, 0});
+      this.genetics = new GeneticsModel(0.5f, 0.5f, 0.5f, 0.33f, 0.33f, 0.33f, 1, 1, 0, 0.5f, 0.5f);
+      this.traits = new TraitModel[0];
+      this.gender = GenderModel.MASCULINE;
     }
 
     public static class HairModel {
