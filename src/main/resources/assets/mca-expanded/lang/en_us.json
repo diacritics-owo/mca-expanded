@@ -2,5 +2,6 @@
   "gui.mca-expanded.button.use-preset": "Use Preset",
   "gui.mca-expanded.config.edit-preset": "Edit Preset",
   "gui.mca-expanded.world-required": "You must be in a world to edit the preset",
-  "gui.mca-expanded.config.destiny": "Destiny Screen: %s"
+  "gui.mca-expanded.config.destiny": "Destiny Screen: %s",
+  "gui.mca-expanded.button.export": "Export"
 }
