@@ -3,9 +3,7 @@ package diacritics.owo;
 import org.jetbrains.annotations.NotNull;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import diacritics.owo.config.Config.Model;
-import diacritics.owo.gui.CustomVillagerEditorScreen;
-import diacritics.owo.util.VillagerData;
+import diacritics.owo.util.ClientHelpers;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
@@ -53,52 +51,13 @@ public class McaExpandedModMenu implements ModMenuApi {
 
       FlowLayout parent = Containers.verticalFlow(Sizing.content(), Sizing.content());
 
-      parent.child(Components.button(Text.translatable("gui.mca-expanded.config.destiny",
-          McaExpanded.CONFIG.read().destiny ? "Enabled" : "Disabled"), (button) -> {
-            Model config = McaExpanded.CONFIG.read();
-            config.destiny = !config.destiny;
-            McaExpanded.CONFIG.write(config);
-
-            button.setMessage(Text.translatable("gui.mca-expanded.config.destiny",
-                McaExpanded.CONFIG.read().destiny ? "Enabled" : "Disabled"));
-          })).child(Components.label(Text.literal(" ")));
+      parent.child(ClientHelpers.destinyButton()).child(Components.label(Text.literal(" ")));
 
       if (!inWorld) {
         parent.child(Components.label(
             Text.translatable("gui.mca-expanded.world-required").formatted(Formatting.BLACK)));
       } else {
-        parent.child(Components.button(Text.translatable("gui.mca-expanded.config.edit-preset"),
-            (button) -> {
-              VillagerData data = new VillagerData();
-
-              Screen screen = new CustomVillagerEditorScreen(this, this.client.player.getUuid(),
-                  this.client.player.getUuid()) {
-                @Override
-                protected void setPage(String page) {
-                  boolean loaded = this.page != null && this.page.equals("loading");
-                  super.setPage(page);
-
-                  if (loaded) {
-                    data.update(this.villager);
-                    VillagerData.fromPreset(McaExpanded.CONFIG.read().preset).apply(this.villager);
-                  }
-                }
-
-                @Override
-                public void close() {
-                  Model config = McaExpanded.CONFIG.read();
-                  config.preset = new VillagerData(this.villager).toPreset();
-                  McaExpanded.CONFIG.write(config);
-
-                  data.apply(this.villager);
-                  this.syncVillagerData();
-
-                  super.close();
-                }
-              };
-
-              this.client.setScreen(screen);
-            }));
+        parent.child(ClientHelpers.editPresetButton(this));
       }
 
       rootComponent.child(parent.padding(Insets.of(10)).surface(Surface.PANEL)
