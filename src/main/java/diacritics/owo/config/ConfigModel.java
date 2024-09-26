@@ -19,8 +19,7 @@ public class ConfigModel implements Cloneable {
   }
 
   public ConfigModel() {
-    this.destiny = true;
-    this.presets = Map.of(UUID.randomUUID().toString(), PresetModel.defaultValue());
+    this(true, Map.of(UUID.randomUUID().toString(), PresetModel.defaultValue()));
   }
 
   public static class PresetModel {
@@ -30,68 +29,46 @@ public class ConfigModel implements Cloneable {
 
     public String presetName;
     public String clothing;
-    public HairModel hair;
-    public GeneticsModel genetics;
+    public String hair;
     public TraitModel[] traits;
     public GenderModel gender;
+    public float size;
+    public float width;
+    public float breast;
+    public float melanin;
+    public float hemoglobin;
+    public float eumelanin;
+    public float pheomelanin;
+    public float skin;
+    public float face;
+    public float voice;
+    public float voiceTone;
 
-    public PresetModel(String presetName, String clothes, HairModel hair, GeneticsModel genetics,
-        TraitModel[] traits, GenderModel gender) {
+    public PresetModel(String presetName, String clothes, String hair, TraitModel[] traits,
+        GenderModel gender, float size, float width, float breast, float melanin, float hemoglobin,
+        float eumelanin, float pheomelanin, float skin, float face, float voice, float voiceTone) {
       this.presetName = presetName;
       this.clothing = clothes;
       this.hair = hair;
-      this.genetics = genetics;
       this.traits = traits;
       this.gender = gender;
+      this.size = size;
+      this.width = width;
+      this.breast = breast;
+      this.melanin = melanin;
+      this.hemoglobin = hemoglobin;
+      this.eumelanin = eumelanin;
+      this.pheomelanin = pheomelanin;
+      this.skin = skin;
+      this.face = face;
+      this.voice = voice;
+      this.voiceTone = voiceTone;
     }
 
     public PresetModel() {
-      this.presetName = "Preset";
-      this.clothing = "mca:skins/clothing/normal/neutral/none/0.png";
-      this.hair = new HairModel("mca:skins/hair/male/25.png", new float[] {0, 0, 0});
-      this.genetics = new GeneticsModel(0.5f, 0.5f, 0.5f, 0.33f, 0.33f, 0.33f, 1, 1, 0, 0.5f, 0.5f);
-      this.traits = new TraitModel[0];
-      this.gender = GenderModel.MASCULINE;
-    }
-
-    public static class HairModel {
-      public String hair;
-      public float[] color;
-
-      public HairModel(String hair, float[] color) {
-        this.hair = hair;
-        this.color = color;
-      }
-    }
-
-    public static class GeneticsModel {
-      public float size;
-      public float width;
-      public float breast;
-      public float melanin;
-      public float hemoglobin;
-      public float eumelanin;
-      public float pheomelanin;
-      public float skin;
-      public float face;
-      public float voice;
-      public float voiceTone;
-
-      public GeneticsModel(float size, float width, float breast, float melanin, float hemoglobin,
-          float eumelanin, float pheomelanin, float skin, float face, float voice,
-          float voiceTone) {
-        this.size = size;
-        this.width = width;
-        this.breast = breast;
-        this.melanin = melanin;
-        this.hemoglobin = hemoglobin;
-        this.eumelanin = eumelanin;
-        this.pheomelanin = pheomelanin;
-        this.skin = skin;
-        this.face = face;
-        this.voice = voice;
-        this.voiceTone = voiceTone;
-      }
+      this("Preset", "mca:skins/clothing/normal/neutral/none/0.png", "mca:skins/hair/male/25.png",
+          new TraitModel[0], GenderModel.MASCULINE, 0.5f, 0.5f, 0.5f, 0.33f, 0.33f, 0.33f, 1, 1, 0,
+          0.5f, 0.5f);
     }
 
     public static enum TraitModel {

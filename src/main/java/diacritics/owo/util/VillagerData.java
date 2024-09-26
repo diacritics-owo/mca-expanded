@@ -1,15 +1,12 @@
 package diacritics.owo.util;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 import diacritics.owo.config.ConfigModel.PresetModel;
 import diacritics.owo.config.ConfigModel.PresetModel.GenderModel;
-import diacritics.owo.config.ConfigModel.PresetModel.GeneticsModel;
-import diacritics.owo.config.ConfigModel.PresetModel.HairModel;
 import diacritics.owo.config.ConfigModel.PresetModel.TraitModel;
 import diacritics.owo.mixin.GeneticsAccessor;
 import fabric.net.mca.entity.VillagerLike;
@@ -35,7 +32,7 @@ public class VillagerData {
   private Gender gender;
 
   public VillagerData() {
-    this(null, null, null, new HashMap<>(), new HashSet<>(), null);
+    this(PresetModel.defaultValue());
   }
 
   public VillagerData(VillagerLike<?> entity) {
@@ -51,6 +48,43 @@ public class VillagerData {
     this.genetics = genetics;
     this.traits = traits;
     this.gender = gender;
+  }
+
+  public VillagerData(PresetModel model) {
+    this.clothing = model.clothing;
+    this.hair = model.hair;
+    this.hairColor = new float[3];
+    this.genetics = new HashMap<>(Map.ofEntries(Map.entry(Genetics.SIZE, model.size),
+        Map.entry(Genetics.WIDTH, model.width), Map.entry(Genetics.BREAST, model.breast),
+        Map.entry(Genetics.MELANIN, model.melanin),
+        Map.entry(Genetics.HEMOGLOBIN, model.hemoglobin),
+        Map.entry(Genetics.EUMELANIN, model.eumelanin),
+        Map.entry(Genetics.PHEOMELANIN, model.pheomelanin), Map.entry(Genetics.SKIN, model.skin),
+        Map.entry(Genetics.FACE, model.face), Map.entry(Genetics.VOICE, model.voice),
+        Map.entry(Genetics.VOICE_TONE, model.voiceTone)));
+    this.traits = Arrays.stream(model.traits).map((trait) -> switch (trait) {
+      case LEFT_HANDED -> Traits.LEFT_HANDED;
+      case WEAK -> Traits.WEAK;
+      case TOUGH -> Traits.TOUGH;
+      case COLOR_BLIND -> Traits.COLOR_BLIND;
+      case HETEROCHROMIA -> Traits.HETEROCHROMIA;
+      case LACTOSE_INTOLERANCE -> Traits.LACTOSE_INTOLERANCE;
+      case COELIAC_DISEASE -> Traits.COELIAC_DISEASE;
+      case DIABETES -> Traits.DIABETES;
+      case DWARFISM -> Traits.DWARFISM;
+      case ALBINISM -> Traits.ALBINISM;
+      case VEGETARIAN -> Traits.VEGETARIAN;
+      case BISEXUAL -> Traits.BISEXUAL;
+      case HOMOSEXUAL -> Traits.HOMOSEXUAL;
+      case ELECTRIFIED -> Traits.ELECTRIFIED;
+      case SIRBEN -> Traits.SIRBEN;
+      case RAINBOW -> Traits.RAINBOW;
+      case UNKNOWN -> Traits.UNKNOWN;
+    }).collect(Collectors.toSet());
+    this.gender = switch (model.gender) {
+      case FEMININE -> Gender.FEMALE;
+      case MASCULINE -> Gender.MALE;
+    };
   }
 
   public void apply(VillagerLike<?> entity) {
@@ -92,13 +126,7 @@ public class VillagerData {
   }
 
   public PresetModel toPreset(String presetName) {
-    return new PresetModel(presetName, this.clothing, new HairModel(this.hair, this.hairColor),
-        new GeneticsModel(this.genetics.get(Genetics.SIZE), this.genetics.get(Genetics.WIDTH),
-            this.genetics.get(Genetics.BREAST), this.genetics.get(Genetics.MELANIN),
-            this.genetics.get(Genetics.HEMOGLOBIN), this.genetics.get(Genetics.EUMELANIN),
-            this.genetics.get(Genetics.PHEOMELANIN), this.genetics.get(Genetics.SKIN),
-            this.genetics.get(Genetics.FACE), this.genetics.get(Genetics.VOICE),
-            this.genetics.get(Genetics.VOICE_TONE)),
+    return new PresetModel(presetName, this.clothing, this.hair,
         this.traits.stream().map((trait) -> switch (trait.id()) {
           case "LEFT_HANDED" -> TraitModel.LEFT_HANDED;
           case "WEAK" -> TraitModel.WEAK;
@@ -122,43 +150,11 @@ public class VillagerData {
         switch (this.gender) {
           case FEMALE -> GenderModel.FEMININE;
           default -> GenderModel.MASCULINE;
-        });
-  }
-
-  public static VillagerData fromPreset(PresetModel model) {
-    return new VillagerData(model.clothing, model.hair.hair, model.hair.color,
-        Map.ofEntries(Map.entry(Genetics.SIZE, model.genetics.size),
-            Map.entry(Genetics.WIDTH, model.genetics.width),
-            Map.entry(Genetics.BREAST, model.genetics.breast),
-            Map.entry(Genetics.MELANIN, model.genetics.melanin),
-            Map.entry(Genetics.HEMOGLOBIN, model.genetics.hemoglobin),
-            Map.entry(Genetics.EUMELANIN, model.genetics.eumelanin),
-            Map.entry(Genetics.PHEOMELANIN, model.genetics.pheomelanin),
-            Map.entry(Genetics.SKIN, model.genetics.skin),
-            Map.entry(Genetics.FACE, model.genetics.face),
-            Map.entry(Genetics.VOICE, model.genetics.voice),
-            Map.entry(Genetics.VOICE_TONE, model.genetics.voiceTone)),
-        Arrays.stream(model.traits).map((trait) -> switch (trait) {
-          case LEFT_HANDED -> Traits.LEFT_HANDED;
-          case WEAK -> Traits.WEAK;
-          case TOUGH -> Traits.TOUGH;
-          case COLOR_BLIND -> Traits.COLOR_BLIND;
-          case HETEROCHROMIA -> Traits.HETEROCHROMIA;
-          case LACTOSE_INTOLERANCE -> Traits.LACTOSE_INTOLERANCE;
-          case COELIAC_DISEASE -> Traits.COELIAC_DISEASE;
-          case DIABETES -> Traits.DIABETES;
-          case DWARFISM -> Traits.DWARFISM;
-          case ALBINISM -> Traits.ALBINISM;
-          case VEGETARIAN -> Traits.VEGETARIAN;
-          case BISEXUAL -> Traits.BISEXUAL;
-          case HOMOSEXUAL -> Traits.HOMOSEXUAL;
-          case ELECTRIFIED -> Traits.ELECTRIFIED;
-          case SIRBEN -> Traits.SIRBEN;
-          case RAINBOW -> Traits.RAINBOW;
-          case UNKNOWN -> Traits.UNKNOWN;
-        }).collect(Collectors.toSet()), switch (model.gender) {
-          case FEMININE -> Gender.FEMALE;
-          case MASCULINE -> Gender.MALE;
-        });
+        }, this.genetics.get(Genetics.SIZE), this.genetics.get(Genetics.WIDTH),
+        this.genetics.get(Genetics.BREAST), this.genetics.get(Genetics.MELANIN),
+        this.genetics.get(Genetics.HEMOGLOBIN), this.genetics.get(Genetics.EUMELANIN),
+        this.genetics.get(Genetics.PHEOMELANIN), this.genetics.get(Genetics.SKIN),
+        this.genetics.get(Genetics.FACE), this.genetics.get(Genetics.VOICE),
+        this.genetics.get(Genetics.VOICE_TONE));
   }
 }

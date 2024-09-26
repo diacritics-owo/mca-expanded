@@ -118,7 +118,7 @@ public class ClientHelpers {
               .verticalScroll(Sizing.content(), Sizing.fill(55),
                   presetList(parent, overlay, drawBackground, use))
               .surface(Surface.PANEL).padding(Insets.of(PADDING_B)))
-              .surface(Surface.VANILLA_TRANSLUCENT).zIndex(100);
+              .surface(Surface.VANILLA_TRANSLUCENT).zIndex(1000);
           root.child(overlay);
         });
   }
@@ -189,10 +189,9 @@ public class ClientHelpers {
 
           if (loaded) {
             data.update(this.villager);
-            VillagerData
-                .fromPreset(
-                    McaExpanded.CONFIG.presets().getOrDefault(preset, PresetModel.defaultValue()))
-                .apply(this.villager);
+            new VillagerData(
+                McaExpanded.CONFIG.presets().getOrDefault(preset, PresetModel.defaultValue()))
+                    .apply(this.villager);
             // TODO: the selected gender is feminine even though the default is masc
           }
         }

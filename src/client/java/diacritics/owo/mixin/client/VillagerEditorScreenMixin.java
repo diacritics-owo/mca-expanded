@@ -59,33 +59,30 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     this.villager = null;
   }
 
+  public int buttonWidth() {
+    return 135 / 2;
+  };
+
+  public int buttonHeight() {
+    return 20;
+  }
+
+  public int buttonX() {
+    return this.width / 2 - 175 + 20;
+  }
+
+  public int buttonY() {
+    return this.height / 2 - 85;
+  }
+
+  public ButtonComponent presetButton;
+
   @Inject(at = @At("TAIL"), method = "setPage")
   protected void mcaExpanded$setPage(String page, CallbackInfo info) {
     if (page.equals("clothing") || page.equals("hair"))
       return;
 
-    int width = 135 / 2;
-    int height = 20;
-
-    int x = this.width / 2 - 175 + 20;
-    int y = this.height / 2 - 85;
-
-    ButtonComponent presetListButton =
-        ClientHelpers.presetListButton(this, this.uiAdapter.rootComponent, true, () -> {
-          this.syncVillagerData();
-        }, Optional.of((preset) -> {
-          VillagerData
-              .fromPreset(
-                  McaExpanded.CONFIG.presets().getOrDefault(preset, PresetModel.defaultValue()))
-              .apply(this.villager);
-          this.syncVillagerData();
-          this.requestVillagerData();
-        }));
-
-    presetListButton.sizing(Sizing.fixed(width), Sizing.fixed(height));
-    presetListButton.positioning(Positioning.absolute(x, y));
-
-    this.uiAdapter.rootComponent.child(presetListButton);
+    this.uiAdapter.rootComponent.child(this.presetButton);
 
     this.addDrawableChild(ButtonWidget.builder(Translations.EXPORT, (button) -> {
       Optional<NativeImage> result = Stream
@@ -119,8 +116,8 @@ public abstract class VillagerEditorScreenMixin extends Screen {
       } else {
         McaExpanded.LOGGER.error("failed to export image (optional was empty)");
       }
-    }).dimensions(x + width, y, width, height).tooltip(Tooltip.of(Translations.EXPORT_TOOLTIP))
-        .build());
+    }).dimensions(this.buttonX() + this.buttonWidth(), this.buttonY(), this.buttonWidth(),
+        this.buttonHeight()).tooltip(Tooltip.of(Translations.EXPORT_TOOLTIP)).build());
   }
 
   // owo-ui things :3
@@ -132,7 +129,23 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     return OwoUIAdapter.create(this, Containers::verticalFlow);
   };
 
-  public void build(FlowLayout rootComponent) {};
+  public void build(FlowLayout rootComponent) {
+    this.presetButton =
+        ClientHelpers.presetListButton(this, this.uiAdapter.rootComponent, true, () -> {
+          this.syncVillagerData();
+        }, Optional.of((preset) -> {
+          new VillagerData(
+              McaExpanded.CONFIG.presets().getOrDefault(preset, PresetModel.defaultValue()))
+                  .apply(this.villager);
+          this.syncVillagerData();
+          this.requestVillagerData();
+        }));
+
+    this.presetButton.sizing(Sizing.fixed(this.buttonWidth()), Sizing.fixed(this.buttonHeight()));
+    this.presetButton.positioning(Positioning.absolute(this.buttonX(), this.buttonY()));
+
+    this.uiAdapter.rootComponent.child(this.presetButton);
+  };
 
   @Inject(method = "init", at = @At("HEAD"))
   public void mcaExpanded$init(CallbackInfo info) {
@@ -177,14 +190,11 @@ public abstract class VillagerEditorScreenMixin extends Screen {
 
   @Override
   public void clearChildren() {
-    if (this.uiAdapter != null) {
-      this.uiAdapter.rootComponent.clearChildren();
-    }
-
     super.clearChildren();
 
     if (this.uiAdapter != null) {
       this.addDrawableChild(this.uiAdapter);
+      this.uiAdapter.rootComponent.removeChild(this.presetButton);
     }
   }
 }
