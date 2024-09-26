@@ -2,7 +2,7 @@
   "required": true,
   "package": "diacritics.owo.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": ["GeneticsAccessor"],
+  "mixins": ["GeneticsAccessor", "LivingEntityMixin"],
   "injectors": {
     "defaultRequire": 1
   }
