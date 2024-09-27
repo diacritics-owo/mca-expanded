@@ -1,0 +1,28 @@
+[artifact]
+folder = "build/libs"
+pattern = "mca-expanded-#.jar"
+game_versions = ["1.20.1", "1.20.2", "1.20.3", "1.20.4"]
+loaders = ["fabric"]
+
+[changelog]
+type = "editor"
+
+[modrinth]
+id = "3xZjvkQF"
+featured = true
+
+[[modrinth.dependencies]]
+id = "P7dR8mSH"
+dependency_type = "required"
+
+[[modrinth.dependencies]]
+id = "1W98a849"
+dependency_type = "required"
+
+[[modrinth.dependencies]]
+id = "ccKDOlHs"
+dependency_type = "required"
+
+[github]
+repo = ["diacritics-owo", "mca-expanded"]
+draft = false

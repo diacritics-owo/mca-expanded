@@ -2,8 +2,9 @@ package diacritics.owo.mixin;
 
 import java.util.Optional;
 import org.spongepowered.asm.mixin.Mixin;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import fabric.net.mca.entity.VillagerEntityMCA;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -20,8 +21,8 @@ public abstract class LivingEntityMixin extends Entity {
     super(entityType, world);
   }
 
-  @WrapMethod(method = "tryUseTotem")
-  private boolean tryUseTotem(DamageSource source, Operation<Boolean> original) {
+  @Inject(method = "tryUseTotem", at = @At("HEAD"))
+  private void tryUseTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
     if ((Entity) this instanceof VillagerEntityMCA) {
       VillagerEntityMCA entity = (VillagerEntityMCA) (Entity) this;
       Optional<ItemStack> totem = entity.getInventory().stacks.stream()
@@ -31,7 +32,5 @@ public abstract class LivingEntityMixin extends Entity {
         entity.setStackInHand(Hand.MAIN_HAND, totem.get());
       }
     }
-
-    return original.call(source);
   }
 }

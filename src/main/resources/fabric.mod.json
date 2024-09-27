@@ -3,11 +3,11 @@
   "id": "mca-expanded",
   "version": "${version}",
   "name": "MCA Expanded",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "An addon for MCA Reborn that adds several QoL features",
   "authors": ["diacritics-owo"],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://modrinth.com/mod/mca-expanded",
+    "sources": "https://github.com/diacritics-owo/mca-expanded"
   },
   "license": "MIT",
   "icon": "assets/mca-expanded/icon.png",
