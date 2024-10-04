@@ -147,7 +147,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     this.uiAdapter.rootComponent.child(this.presetButton);
   };
 
-  @Inject(method = "init", at = @At("HEAD"))
+  @Inject(method = "init", at = @At("HEAD"), remap = true)
   public void mcaExpanded$init(CallbackInfo info) {
     if (this.invalid)
       return;
@@ -172,7 +172,7 @@ public abstract class VillagerEditorScreenMixin extends Screen {
     return this.uiAdapter.rootComponent.childById(expectedClass, id);
   }
 
-  @WrapMethod(method = "render")
+  @WrapMethod(method = "render", remap = true)
   public void mcaExpanded$render(DrawContext context, int mouseX, int mouseY, float delta,
       Operation<Void> original) {
     if (!this.invalid) {

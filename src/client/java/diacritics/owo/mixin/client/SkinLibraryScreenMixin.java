@@ -13,7 +13,7 @@ public abstract class SkinLibraryScreenMixin {
   @Shadow
   private final VillagerEditorScreen previousScreen;
 
-  @Shadow
+  @Shadow(remap = true)
   abstract public void close();
 
   public SkinLibraryScreenMixin() {
